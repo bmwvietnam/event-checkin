@@ -55,6 +55,7 @@ function check(){
        localStorage.setItem('checkindongxe',data[7]);
        localStorage.setItem('checkinstt',data[11]);
        localStorage.setItem('hoanthanh',data[13]);
+	   $('#loginform').css('top', '28vh');
  $('.check').show();
           $('.checkout').show();
     if (  localStorage.getItem('checkinstt')!=''&& localStorage.getItem('checkinstt')!='undefined') {
@@ -70,11 +71,13 @@ function check(){
         }
          $('.check').hide();
       $('.checkout').show();
+	  $('#loginform').css('top', '35vh');
     } else {
       $('.h1-stt h1').text(data[11]);
           $('.check').hide();
       $('.checkout').show();
       $('.survey').show();
+	  $('#loginform').css('top', '28vh');
     }
     }
      } catch {
@@ -220,7 +223,7 @@ function check(){
     padding: 30 0;
     background: linear-gradient(to right, #01748fcf, #6c134396);
     border-radius: 20px;
-    top: 28vh;
+    top: 38vh;
     }
     .loading {
       text-align:center;
@@ -284,6 +287,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </body>
 
 </html>
+
 
 
 
