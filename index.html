@@ -1,0 +1,622 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CHECK-IN | BMW MEET & DRIVE</title>
+    
+    <!-- Libraries -->
+    <script type="text/javascript" src="https://me.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=K3ZJxU-yKQoq12W22g6lKScTFaOnPDl5qT_5dfBMzIREP-28NTbquXeFNtmiD7fXSRGVKjDmXAqxY42CX4qsow" charset="UTF-8"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+	<link rel="shortcut icon" type="image/x-icon" href="https://d35wmn7bemzfye.cloudfront.net/016cb055e264cba17dedfeab958d53e1983cc9af/1747652511/images/ico/favicon.ico">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['BMWTypeNext', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        'heading': ['BMWTypeNext', 'sans-serif']
+                    },
+                    colors: {
+                        'bmw-blue': { 'DEFAULT': '#0066CC', 'light': '#0099FF', 'dark': '#004999' },
+                        'brand': { success: '#10b981', warning: '#f59e0b', danger: '#ef4444' }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- FONTS --- */
+        @font-face { font-family: 'BMWTypeNext'; src: url('./VN_BMWTypeNextLatin-Light.woff2') format('woff2'); font-weight: 300; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'BMWTypeNext'; src: url('./VN_BMWTypeNextLatin-Light.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'BMWTypeNext'; src: url('./VN_BMWTypeNextLatin-Light.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+
+        body {
+            font-family: 'BMWTypeNext', sans-serif;
+            margin: 0; padding: 0;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            overflow-x: hidden;
+        }
+
+        /* --- LOGIN SCREEN STYLES --- */
+        #login-view {
+            width: 100vw; height: 100vh;
+            background: url(https://drive.google.com/thumbnail?id=1BKZ5Dlpwuk4RoB0-jqEZ6L5BH0q1fmvw&sz=w1600) no-repeat center top;
+            background-size: cover;
+            position: fixed; top: 0; left: 0; z-index: 50;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%; max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            margin-top: 20vh;
+        }
+
+        /* --- DASHBOARD STYLES --- */
+        #dashboard-view {
+            min-height: 100vh;
+            display: none; /* Ẩn mặc định */
+            padding: 1rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-container {
+            background: white;
+            width: 100%; max-width: 480px;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            min-height: 80vh;
+        }
+
+        /* --- UTILS --- */
+        .btn-bmw {
+            background-color: #0066CC; color: white;
+            font-weight: 700; padding: 0.75rem 1rem;
+            border-radius: 0.5rem; text-transform: uppercase;
+            width: 100%; transition: all 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 0.5rem;
+        }
+        .btn-bmw:active { transform: scale(0.98); }
+        .btn-bmw-outline {
+            border: 2px solid #0066CC; color: #0066CC;
+            background: transparent; font-weight: 700;
+            padding: 0.75rem 1rem; border-radius: 0.5rem;
+            width: 100%; text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* Camera Fix */
+        #reader { width: 100%; height: 100%; border-radius: 1rem; overflow: hidden; background: #000; }
+        #reader video { object-fit: cover; width: 100% !important; height: 100% !important; }
+    </style>
+
+    <script>
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-gn8Q7tWq7AYqtqdtznl7W6jSj8MMtdsar5GUaRWmoSYS3uQ8Z7NsL2JOCHif-gG6Ow/exec";
+        var data;
+
+        // Cấu hình Game
+        const zoneConfig = {
+            'tech': { name: 'Công Nghệ', icon: 'fa-microchip', desc: 'Trải nghiệm đột phá' },
+            'design': { name: 'Thiết Kế', icon: 'fa-bezier-curve', desc: 'Phong cách táo bạo' },
+            'safety': { name: 'An Toàn', icon: 'fa-shield-halved', desc: 'An tâm tuyệt đối' },
+            'performance': { name: 'Hiệu Suất', icon: 'fa-gauge-high', desc: 'Vận hành mạnh mẽ' }
+        };
+        
+        let currentGameData = { tech: false, design: false, safety: false, performance: false };
+        let currentPhone = "";
+        let html5QrCode;
+
+        $(document).ready(function(){
+            // [LOGIC MỚI] Kiểm tra LocalStorage trước
+            var savedPhone = localStorage.getItem('checkinsdt');
+            if(savedPhone && savedPhone != '') {
+                // Nếu đã có thông tin trong cache -> Load Dashboard ngay lập tức (Offline mode)
+                restoreSession(savedPhone);
+            } else {
+                // Nếu chưa có -> Ở lại màn hình Login
+            }
+        });
+
+        // --- HÀM KHÔI PHỤC PHIÊN LÀM VIỆC TỪ LOCALSTORAGE ---
+        function restoreSession(phone) {
+            console.log("Restoring session from LocalStorage...");
+            
+            // Tái tạo lại cấu trúc data giả lập từ LocalStorage để tái sử dụng hàm updateDashboardData
+            // Các chỉ số dựa trên Google Sheet: [2]=DanhXung, [3]=HoTen, [7]=DongXe, [11]=STT, [13]=HoanThanh, [17]=Lan2
+            var mockData = [];
+            mockData[2] = localStorage.getItem('checkindanhxung') || "";
+            mockData[3] = localStorage.getItem('checkinhoten') || "";
+            mockData[7] = localStorage.getItem('checkindongxe') || "";
+            mockData[11] = localStorage.getItem('checkinstt') || "";
+            mockData[13] = localStorage.getItem('hoanthanh') || "";
+            mockData[17] = localStorage.getItem('checkinlan2') || ""; // [QUAN TRỌNG] Cần lưu thêm cái này
+
+            // Cập nhật giao diện
+            updateDashboardData(mockData, phone);
+            
+            // Chuyển màn hình ngay lập tức
+            switchToDashboard();
+            
+            // Khởi tạo game (sẽ tự động lấy từ LocalStorage vì không truyền serverData)
+            initGameLogic(phone, mockData[3]);
+        }
+
+        // --- HÀM CHECK() GỌI SERVER ---
+        function check(){
+            var c = $('#txt-sdt').val().trim();
+            if (c != "") {
+                showLoading(true, "Đang kiểm tra...");
+                
+                $.ajax({
+                    url: SCRIPT_URL + "?id=" + c, 
+                    success: function(response){
+                        try {
+                            var jsonResponse = (typeof response === 'object') ? response : JSON.parse(response);
+
+                            if(jsonResponse.result === "error") {
+                                showLoading(false);
+                                alert(jsonResponse.message || "Không tìm thấy thông tin số điện thoại này.");
+                                return;
+                            }
+
+                            data = jsonResponse.userData;
+                            var serverGameProgress = jsonResponse.gameProgress;
+
+                            if(data && data.length > 0) {
+                                // [LƯU VÀO CACHE]
+                                localStorage.setItem('checkinsdt', c);
+                                localStorage.setItem('checkindanhxung', data[2]);
+                                localStorage.setItem('checkinhoten', data[3]);
+                                localStorage.setItem('checkindongxe', data[7]);
+                                localStorage.setItem('checkinstt', data[11]);
+                                localStorage.setItem('hoanthanh', data[13]);
+                                // [MỚI] Lưu thêm trạng thái lái thử lần 2 để hiển thị offline đúng
+                                localStorage.setItem('checkinlan2', data[17] || ""); 
+
+                                updateDashboardData(data, c);
+                                showLoading(false);
+                                switchToDashboard();
+                                initGameLogic(c, data[3], serverGameProgress); 
+
+                            } else {
+                                showLoading(false);
+                                alert("Dữ liệu trả về không hợp lệ.");
+                            }
+                        } catch(e) {
+                            console.log("Error parsing response:", e);
+                            showLoading(false);
+                            alert("Có lỗi xảy ra khi xử lý dữ liệu.");
+                        }
+                    }, 
+                    error: function() {
+                        showLoading(false);
+                        alert("Lỗi kết nối. Vui lòng thử lại.");
+                    }
+                });
+            } else {
+                alert("Vui lòng nhập số điện thoại");
+            }
+        }
+
+        function updateDashboardData(data, phone) {
+            $('#display-name').text(data[3]); 
+            $('#display-title').text(data[2]); 
+            $('#display-phone').text(phone);
+            
+            let statusHtml = '';
+            // Lấy dữ liệu từ tham số data truyền vào (có thể là từ Server hoặc Mock từ LocalStorage)
+            let stt = data[11];
+            let hoanthanh = data[13];
+            let lan2 = data[17];
+            let dongxe = data[7];
+
+            if (stt && stt != 'undefined') {
+                if (hoanthanh && hoanthanh.length > 0) {
+                    if (lan2 && lan2.length != '') {
+                        statusHtml = `<div class="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-2 border border-green-200">
+                                        <strong>Lần 1:</strong> ${stt} (Hoàn thành)<br>
+                                        <strong>Lần 2:</strong> ${lan2} (Chờ lái thử)
+                                      </div>`;
+                    } else {
+                        statusHtml = `<div class="bg-green-50 text-green-700 p-3 rounded-lg text-sm mb-2 border border-green-200 text-center">
+                                        <i class="fa-solid fa-check-circle text-xl mb-1"></i><br>
+                                        <strong>Đã hoàn thành!</strong><br>${dongxe} (STT ${stt})
+                                      </div>`;
+                        $('#btn-survey').show();
+                    }
+                } else {
+                    statusHtml = `<div class="bg-blue-50 text-bmw-blue p-4 rounded-lg text-center border border-blue-200 shadow-sm">
+                                    <div class="text-xs uppercase text-gray-500 mb-1">Số thứ tự của bạn</div>
+                                    <div class="text-4xl font-bold">${stt}</div>
+                                  </div>`;
+                    $('#btn-survey').show();
+                }
+            }
+            $('#user-status-area').html(statusHtml);
+        }
+
+        function switchToDashboard() {
+            $('#login-view').hide(); // Hide ngay lập tức thay vì fadeOut để cảm giác nhanh hơn
+            $('#dashboard-view').css('display', 'flex');
+        }
+
+        function checkout() {
+            if(confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                // Xóa toàn bộ key
+                localStorage.removeItem('checkinsdt');
+                localStorage.removeItem('checkindanhxung');
+                localStorage.removeItem('checkinhoten');
+                localStorage.removeItem('checkinthuonghieu');
+                localStorage.removeItem('checkindongxe');
+                localStorage.removeItem('checkinstt');
+                localStorage.removeItem('hoanthanh');
+                localStorage.removeItem('checkinlan2');
+                
+                // Reload trang để về màn hình login
+                location.reload();
+            }
+        }
+
+        function survey() {
+            showLoading(true);
+            var checkinstt = localStorage.getItem('checkinstt');
+            var surveyLink = "https://docs.google.com/forms/d/e/1FAIpQLSe0QfyH3lNyKzdE93EBk1Z9bVzqx-twBTu6neW2HioZxjdt_Q/viewform?usp=pp_url&entry.1493832941=" + checkinstt +
+                "&entry.1645529580=" + localStorage.getItem('checkinhoten') +
+                "&entry.16223579=" + localStorage.getItem('checkinsdt');
+            
+            if (/^S\d+/.test(checkinstt)) {
+                surveyLink = "https://docs.google.com/forms/d/e/1FAIpQLScl1sXhqny5qrAUPnd-XfcGc2JXuhamTkjXQPPgtYQRhXRHKw/viewform?usp=pp_url&entry.575443961=" + checkinstt +
+                    "&entry.1584443521=" + localStorage.getItem('checkinhoten') +
+                    "&entry.215162100=" + localStorage.getItem('checkinsdt') +
+                    "&entry.1114020381=" + localStorage.getItem('checkindongxe');
+            }
+            location.href = surveyLink;
+        }
+
+        // --- GAME LOGIC ---
+        function initGameLogic(phone, name, serverData) {
+            currentPhone = phone;
+            
+            // 1. Nếu có Server Data (vừa Login xong), dùng nó và lưu cache
+            if (serverData) {
+                console.log("Init Game with Server Data");
+                currentGameData = serverData;
+            } 
+            // 2. Nếu không (Reload trang), lấy từ LocalStorage
+            else {
+                console.log("Init Game with LocalStorage");
+                const savedProgress = localStorage.getItem('game_progress_' + phone);
+                if (savedProgress) {
+                    currentGameData = JSON.parse(savedProgress);
+                } else {
+                    currentGameData = { tech: false, design: false, safety: false, performance: false };
+                }
+            }
+
+            saveGameProgress(); // Đảm bảo đồng bộ vào cache
+            checkUrlForChallenge();
+            updateGameUI();
+        }
+
+        function syncProgressToSheet(challengeId) {
+            console.log("Syncing to sheet (Background): " + challengeId);
+            // Gọi AJAX ngầm, không hiện loading
+            $.ajax({
+                url: SCRIPT_URL,
+                type: 'GET',
+                data: { action: 'update_game', id: currentPhone, challenge: challengeId },
+                success: function(response) { console.log("Server Synced:", response); },
+                error: function(err) { console.log("Server Sync Error:", err); }
+            });
+        }
+
+        function checkUrlForChallenge() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const challengeId = urlParams.get('challenge');
+            if (challengeId && zoneConfig[challengeId]) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                if (!currentGameData[challengeId]) {
+                    currentGameData[challengeId] = true;
+                    saveGameProgress();
+                    syncProgressToSheet(challengeId);
+                    
+                    setTimeout(() => {
+                        document.getElementById('success-message').innerHTML = `Bạn đã hoàn thành trạm <strong class="text-bmw-blue">${zoneConfig[challengeId].name}</strong>`;
+                        document.getElementById('success-modal').classList.remove('hidden');
+                        updateGameUI();
+                    }, 500); 
+                }
+            }
+        }
+
+        function saveGameProgress() {
+            localStorage.setItem('game_progress_' + currentPhone, JSON.stringify(currentGameData));
+            updateGameUI();
+        }
+
+        function updateGameUI() {
+            const listContainer = document.getElementById('challenge-list');
+            listContainer.innerHTML = '';
+            let completedCount = 0;
+
+            Object.keys(currentGameData).forEach(key => {
+                const isDone = currentGameData[key];
+                if(isDone) completedCount++;
+                const config = zoneConfig[key];
+
+                const card = document.createElement('div');
+                card.className = `challenge-card flex items-center gap-4 p-4 rounded-xl border mb-3 transition-all duration-300 ${isDone ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100 shadow-sm'}`;
+                
+                card.innerHTML = `
+                    <div class="h-12 w-12 rounded-lg ${isDone ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-bmw-blue'} flex items-center justify-center text-lg flex-shrink-0">
+                        <i class="fa-solid ${isDone ? 'fa-check' : config.icon}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-900 text-sm font-heading uppercase">${config.name}</h4>
+                        <span class="text-xs ${isDone ? 'text-green-600 font-bold' : 'text-gray-500'} block mt-0.5">
+                            ${isDone ? 'Đã hoàn thành' : config.desc}
+                        </span>
+                    </div>
+                    <div>
+                        ${isDone 
+                            ? `<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>`
+                            : `<button onclick="openScanner('${key}')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded-lg text-xs flex items-center gap-1 transition-colors">
+                                <i class="fa-solid fa-camera"></i> QUÉT
+                               </button>`
+                        }
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+
+            const percent = (completedCount / 4) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-text').innerText = `${completedCount}/4`;
+
+            const btnRedeem = document.getElementById('btn-redeem');
+            const giftStatus = document.getElementById('gift-status-text');
+            
+            if (completedCount === 4) {
+                btnRedeem.disabled = false;
+                btnRedeem.className = "w-full py-3 rounded-lg font-bold text-sm uppercase tracking-wide transition-all bg-yellow-500 hover:bg-yellow-400 text-gray-900 shadow-lg animate-pulse";
+                btnRedeem.innerHTML = `<i class="fa-solid fa-gift mr-2"></i> NHẬN QUÀ NGAY`;
+                giftStatus.innerText = "Bạn đã đủ điều kiện nhận quà!";
+                giftStatus.className = "text-xs text-yellow-400 mb-2 font-bold";
+            } else {
+                btnRedeem.disabled = true;
+                btnRedeem.className = "w-full py-3 rounded-lg font-bold text-sm uppercase tracking-wide transition-all bg-gray-700 text-gray-500 cursor-not-allowed";
+                btnRedeem.innerHTML = "CHƯA ĐỦ ĐIỀU KIỆN";
+                giftStatus.innerText = "Hoàn thành 4/4 thử thách để nhận.";
+                giftStatus.className = "text-xs text-gray-400 mb-2";
+            }
+        }
+
+        // --- SCANNER UI ---
+        function openScanner(targetZoneId) {
+            document.getElementById('scan-target-name').innerText = zoneConfig[targetZoneId].name;
+            document.getElementById('scan-modal').classList.remove('hidden');
+
+            if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, aspectRatio: 1.0 },
+                (decodedText) => { handleScanSuccess(decodedText, targetZoneId); },
+                () => {}
+            ).catch(err => {
+                alert("Lỗi Camera: " + err);
+                closeModal('scan-modal');
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => closeModal('scan-modal')).catch(() => closeModal('scan-modal'));
+            } else { closeModal('scan-modal'); }
+        }
+
+        function handleScanSuccess(decodedText, targetZoneId) {
+            stopScanner();
+            let scannedId = null;
+            try {
+                const url = new URL(decodedText);
+                scannedId = url.searchParams.get('challenge');
+            } catch (e) { console.log("QR không phải URL"); }
+            if (!scannedId && zoneConfig[decodedText]) { scannedId = decodedText; }
+
+            if (scannedId === targetZoneId) {
+                currentGameData[targetZoneId] = true;
+                saveGameProgress();
+                syncProgressToSheet(targetZoneId);
+                document.getElementById('success-message').innerHTML = `Bạn đã hoàn thành trạm <strong class="text-bmw-blue">${zoneConfig[targetZoneId].name}</strong>`;
+                document.getElementById('success-modal').classList.remove('hidden');
+            } else {
+                alert(`QR Sai! Vui lòng tìm đúng trạm "${zoneConfig[targetZoneId].name}"`);
+            }
+        }
+
+        // Helpers
+        function showLoading(show, text="Đang xử lý...") {
+            const el = document.getElementById('loading-overlay');
+            if(show) { document.getElementById('loading-text').innerText = text; el.classList.remove('hidden'); }
+            else { el.classList.add('hidden'); }
+        }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function showRedeemInstruction() { document.getElementById('redeem-modal').classList.remove('hidden'); }
+
+    </script>
+</head>
+<body>
+
+    <!-- === VIEW 1: LOGIN === -->
+    <div id="login-view">
+        <!-- Logo BMW -->
+        <div class="absolute top-10 left-10 w-24">
+            <!-- Placeholder -->
+        </div>
+
+        <div class="login-card flex flex-col items-center animate-fade-in">
+            <h1 class="text-2xl font-bold text-gray-800 mb-1 font-heading uppercase text-center">Check-in</h1>
+            <p class="text-gray-500 text-sm mb-6 text-center">Nhập số điện thoại để tiếp tục</p>
+            
+            <input type="tel" id="txt-sdt" class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:border-bmw-blue focus:ring-2 focus:ring-bmw-blue/20 transition-all text-center text-lg font-bold text-gray-800 mb-4" placeholder="Số điện thoại...">
+            
+            <button onclick="check()" class="btn-bmw shadow-lg shadow-blue-500/30">
+                BẮT ĐẦU <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+            
+            <a href="https://driveyourpassion.event-bmw.vn/" class="mt-4 text-sm text-gray-500 hover:text-bmw-blue transition-colors underline decoration-dotted">Đăng ký tham gia</a>
+        </div>
+        
+        <div class="absolute bottom-4 text-white/50 text-xs">© BMW Vietnam</div>
+    </div>
+
+    <!-- === VIEW 2: DASHBOARD === -->
+    <div id="dashboard-view">
+        <div class="main-container relative">
+            
+            <!-- Header -->
+            <div class="bg-white p-5 border-b border-gray-100 flex justify-between items-center sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-bmw-blue text-white flex items-center justify-center font-bold text-lg shadow-md">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider" id="display-title">Quý khách</p>
+                        <h2 class="text-sm font-bold text-gray-900 leading-tight" id="display-name">Loading...</h2>
+                        <span class="text-xs text-bmw-blue font-mono" id="display-phone">...</span>
+                    </div>
+                </div>
+                <button onclick="checkout()" class="h-8 w-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5 custom-scrollbar">
+                
+                <!-- Status Check-in Area -->
+                <div id="user-status-area" class="mb-6"></div>
+
+                <!-- Progress Bar -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-end mb-2">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tiến độ</h3>
+                        <span id="progress-text" class="text-lg font-bold text-bmw-blue">0/4</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div id="progress-bar" class="bg-bmw-blue h-2 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Challenges List -->
+                <div id="challenge-list" class="mb-6"></div>
+
+                <!-- Gift Card -->
+                <div id="gift-card" class="bg-gray-900 text-white p-5 rounded-xl text-center relative overflow-hidden shadow-xl mb-4">
+                    <div class="relative z-10">
+                        <div class="mx-auto h-12 w-12 bg-white/10 rounded-full flex items-center justify-center mb-2 text-yellow-400 border border-white/20">
+                            <i class="fa-solid fa-gift text-xl"></i>
+                        </div>
+                        <h3 class="text-sm font-bold mb-1 uppercase tracking-wide">Quà tặng đặc biệt</h3>
+                        <p id="gift-status-text" class="text-xs text-gray-400 mb-4">Hoàn thành 4/4 thử thách để nhận.</p>
+                        <button id="btn-redeem" onclick="showRedeemInstruction()" disabled 
+                            class="w-full py-3 rounded-lg font-bold text-xs uppercase tracking-wide transition-all bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700">
+                            Chưa đủ điều kiện
+                        </button>
+                    </div>
+                    <div class="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" 
+                         style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 10px 10px;"></div>
+                </div>
+
+                <!-- Survey Button -->
+                <button id="btn-survey" onclick="survey()" style="display:none" class="btn-bmw-outline mb-4">
+                    <i class="fa-regular fa-star mr-2"></i> Đánh giá chương trình
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- === MODALS === -->
+    <!-- Loading Modal -->
+    <div id="loading-overlay" class="hidden fixed inset-0 z-[80] flex flex-col items-center justify-center bg-white/80 backdrop-blur-md">
+        <div class="w-10 h-10 border-4 border-bmw-blue border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p id="loading-text" class="text-bmw-blue font-bold text-sm tracking-wider animate-pulse">ĐANG XỬ LÝ...</p>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div id="scan-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-fade-in">
+        <div class="w-full max-w-md text-center relative flex flex-col h-full justify-center">
+            <button onclick="stopScanner()" class="absolute top-6 right-0 text-white bg-white/20 rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 z-50 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-2 font-heading">QUÉT MÃ QR</h3>
+            <p class="text-gray-300 text-sm mb-6">Trạm: <span id="scan-target-name" class="text-bmw-blue font-bold bg-white/10 px-2 py-0.5 rounded">...</span></p>
+            <div class="relative w-full aspect-square bg-black rounded-2xl overflow-hidden border-2 border-gray-600 shadow-2xl">
+                <div id="reader"></div>
+                <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                     <div class="w-64 h-64 border-2 border-bmw-blue/70 rounded-lg relative">
+                         <div class="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-bmw-blue"></div>
+                         <div class="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-bmw-blue"></div>
+                         <div class="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-bmw-blue"></div>
+                         <div class="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-bmw-blue"></div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-6 animate-fade-in">
+        <div class="bg-white rounded-xl p-8 w-full max-w-sm text-center shadow-2xl">
+            <div class="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fa-solid fa-check text-3xl text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2 font-heading">TUYỆT VỜI!</h3>
+            <p id="success-message" class="text-gray-600 mb-6 text-sm">Thử thách hoàn thành.</p>
+            <button onclick="closeModal('success-modal')" class="btn-bmw bg-green-600 hover:bg-green-700">TIẾP TỤC</button>
+        </div>
+    </div>
+
+    <!-- Redeem Modal -->
+    <div id="redeem-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-6 animate-fade-in">
+        <div class="bg-white rounded-xl p-8 w-full max-w-sm text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-bmw-blue to-blue-400"></div>
+            <div class="mx-auto h-16 w-16 bg-yellow-50 rounded-full flex items-center justify-center mb-4 animate-bounce">
+                <i class="fa-solid fa-trophy text-3xl text-yellow-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2 font-heading">CHÚC MỪNG!</h3>
+            <p class="text-gray-600 text-sm mb-6 leading-relaxed">
+                Bạn đã hoàn thành xuất sắc.<br>
+                <span class="text-bmw-blue font-bold border-b border-bmw-blue">Vui lòng mang màn hình này</span>
+                <br>đến quầy để nhận quà.
+            </p>
+            <button onclick="closeModal('redeem-modal')" class="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg text-sm">ĐÓNG</button>
+        </div>
+    </div>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"085c89d1b8ca47b2aeb3e22502543332","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
