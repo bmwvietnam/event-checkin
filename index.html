@@ -46,7 +46,7 @@
         /* --- FONTS --- */
         @font-face { font-family: 'BMWTypeNext'; src: url('./VN_BMWTypeNextLatin-Light.woff2') format('woff2'); font-weight: 300; font-style: normal; font-display: swap; }
         @font-face { font-family: 'BMWTypeNext'; src: url('./VN_BMWTypeNextLatin-Light.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
-        @font-face { font-family: 'BMWTypeNext'; src: url('./VN_BMWTypeNextLatin-Light.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'BMWTypeNext'; src: url('./VN_BMWTypeNextLatin-Regular.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
 
         body {
             font-family: 'BMWTypeNext', sans-serif;
@@ -79,7 +79,7 @@
         #dashboard-view {
             min-height: 100vh;
             display: none; /* Ẩn mặc định */
-            padding: 1rem;
+            padding: 0.5rem;
             align-items: center;
             justify-content: center;
         }
@@ -413,7 +413,7 @@
             btnRedeem.disabled = true;
             btnRedeem.className = "w-full py-3 rounded-lg font-bold text-sm uppercase tracking-wide transition-all bg-gray-700 text-gray-500 cursor-not-allowed";
             btnRedeem.innerHTML = "CHƯA ĐỦ ĐIỀU KIỆN";
-            giftStatus.innerText = "Hoàn thành 4/4 trạm & khảo sát để nhận.";
+            giftStatus.innerText = "Hoàn thành 4/4 trạm để nhận quà.";
             giftStatus.className = "text-xs text-gray-400 mb-2";
 
             // Nếu đã hoàn thành 4 trạm
@@ -541,7 +541,7 @@
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-5 custom-scrollbar">
+            <div class="flex-1 overflow-y-auto p-2 custom-scrollbar">
                 
                 <!-- Status Check-in Area -->
                 <div id="user-status-area" class="mb-6"></div>
@@ -587,7 +587,7 @@
                             <i class="fa-solid fa-gift text-xl"></i>
                         </div>
                         <h3 class="text-sm font-bold mb-1 uppercase tracking-wide">Quà tặng đặc biệt</h3>
-                        <p id="gift-status-text" class="text-xs text-gray-400 mb-4">Hoàn thành 4/4 thử thách để nhận.</p>
+                        <p id="gift-status-text" class="text-xs text-gray-400 mb-4">Hoàn thành 4/4 thử thách để nhận quà.</p>
                         <button id="btn-redeem" onclick="showRedeemInstruction()" disabled 
                             class="w-full py-3 rounded-lg font-bold text-xs uppercase tracking-wide transition-all bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700">
                             Chưa đủ điều kiện
@@ -616,7 +616,7 @@
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             <h3 class="text-xl font-bold text-white mb-2 font-heading">QUÉT MÃ QR</h3>
-            <p class="text-gray-300 text-sm mb-6">Trạm: <span id="scan-target-name" class="text-bmw-blue font-bold bg-white/10 px-2 py-0.5 rounded">...</span></p>
+            <p class="text-gray-300 text-sm mb-6">Trạm: <span id="scan-target-name" class="text-bmw-white font-bold bg-white/10 px-2 py-0.5 rounded">...</span></p>
             <div class="relative w-full aspect-square bg-black rounded-2xl overflow-hidden border-2 border-gray-600 shadow-2xl">
                 <div id="reader"></div>
             </div>
@@ -645,8 +645,8 @@
             <h3 class="text-xl font-bold text-gray-900 mb-2 font-heading">CHÚC MỪNG!</h3>
             <p class="text-gray-600 text-sm mb-6 leading-relaxed">
                 Bạn đã hoàn thành xuất sắc.<br>
-                <span class="text-bmw-blue font-bold border-b border-bmw-blue">Vui lòng mang màn hình này</span>
-                <br>đến quầy để nhận quà.
+                <span class="text-bmw-blue font-bold border-bmw-blue">Vui lòng mang màn hình này</span>
+                <br>đến quầy check-out để nhận quà.
             </p>
             <button onclick="closeModal('redeem-modal')" class="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg text-sm">ĐÓNG</button>
         </div>
