@@ -66,7 +66,7 @@
         }
         
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 1rem;
@@ -128,17 +128,17 @@
     </style>
 
     <script>
-        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-gn8Q7tWq7AYqtqdtznl7W6jSj8MMtdsar5GUaRWmoSYS3uQ8Z7NsL2JOCHif-gG6Ow/exec";
+        var SCRIPT_URL = "https://script.google.com/macros/s/AKfycby07OBmW1s3SHR_CZu3iAFggOAvIEFegFiEgTOOF_V38Lb0cIyx2uGrOXi9tGODw2ef/exec";
         
         // Cấu hình Game
         const zoneConfig = {
-            'tech': { name: 'Công Nghệ', icon: 'fa-microchip', desc: 'Trải nghiệm đột phá' },
-            'design': { name: 'Thiết Kế', icon: 'fa-bezier-curve', desc: 'Phong cách táo bạo' },
-            'safety': { name: 'An Toàn', icon: 'fa-shield-halved', desc: 'An tâm tuyệt đối' },
-            'performance': { name: 'Hiệu Suất', icon: 'fa-gauge-high', desc: 'Vận hành mạnh mẽ' }
+            'talkshow': { name: 'KHÁM PHÁ DI SẢN', icon: 'fa-car', desc: 'Talkshow "50 Years of The 3"' },
+            'draw': { name: 'VẼ LÊN DẤU ẤN', icon: 'fa-pen', desc: 'Tự họa cá tính <br>Kiến tạo độc bản cùng BMW' },
+            'bimmie': { name: 'LƯU GIỮ KHOẢNH KHẮC', icon: 'fa-image', desc: 'Check-in cùng BIMMIE' },
+            'testdrive': { name: 'BỨT PHÁ GIỚI HẠN', icon: 'fa-gauge-high', desc: 'Hoàn thành thử thách <br>Lái thử/ Gymkhana' }
         };
         
-        let currentGameData = { tech: false, design: false, safety: false, performance: false };
+        let currentGameData = { talkshow: false, draw: false, bimmie: false, testdrive: false };
         let currentPhone = "";
         let isSurveyDone = false; // Trạng thái đã khảo sát hay chưa
         let html5QrCode;
@@ -301,7 +301,7 @@
             var car = localStorage.getItem('checkindongxe');
             
             // Link mặc định
-            var surveyLink = "https://docs.google.com/forms/d/e/1FAIpQLSe0QfyH3lNyKzdE93EBk1Z9bVzqx-twBTu6neW2HioZxjdt_Q/viewform?usp=pp_url&entry.1493832941=" + checkinstt +
+            var surveyLink = "https://docs.google.com/forms/d/e/1FAIpQLSfWtuQOJ9S9JyRjiM34vanN_8nIz8oO5-53mu8r2yWFr_Z6qw/viewform?usp=pp_url&entry.1493832941=" + checkinstt +
                 "&entry.1645529580=" + name +
                 "&entry.16223579=" + phone;
             
@@ -349,7 +349,7 @@
                     syncProgressToSheet(challengeId);
                     
                     setTimeout(() => {
-                        document.getElementById('success-message').innerHTML = `Bạn đã hoàn thành trạm <strong class="text-bmw-blue">${zoneConfig[challengeId].name}</strong>`;
+                        document.getElementById('success-message').innerHTML = `Bạn đã hoàn thành trạm <br><strong class="text-bmw-blue">${zoneConfig[challengeId].name}</strong>`;
                         document.getElementById('success-modal').classList.remove('hidden');
                         updateGameUI();
                     }, 500); 
@@ -378,19 +378,19 @@
                 card.className = `challenge-card flex items-center gap-4 p-4 rounded-xl border mb-3 transition-all duration-300 ${isDone ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100 shadow-sm'}`;
                 card.innerHTML = `
                     <div class="h-12 w-12 rounded-lg ${isDone ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-bmw-blue'} flex items-center justify-center text-lg flex-shrink-0">
-                        <i class="fa-solid ${isDone ? 'fa-check' : config.icon}"></i>
+                        <i class="fa-solid ${config.icon}"></i>
                     </div>
                     <div class="flex-1">
                         <h4 class="font-bold text-gray-900 text-sm font-heading uppercase">${config.name}</h4>
-                        <span class="text-xs ${isDone ? 'text-green-600 font-bold' : 'text-gray-500'} block mt-0.5">
+                        <p class="text-xs ${isDone ? 'text-green-600 font-bold' : 'text-gray-500'} block mt-0.5">
                             ${isDone ? 'Đã hoàn thành' : config.desc}
-                        </span>
+                        </p>
                     </div>
                     <div>
                         ${isDone 
                             ? `<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>`
                             : `<button onclick="openScanner('${key}')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded-lg text-xs flex items-center gap-1 transition-colors">
-                                <i class="fa-solid fa-camera"></i> QUÉT
+                                <i class="fa-solid fa-camera"></i> SCAN
                                </button>`
                         }
                     </div>
@@ -485,7 +485,7 @@
                 currentGameData[targetZoneId] = true;
                 saveGameProgress();
                 syncProgressToSheet(targetZoneId);
-                document.getElementById('success-message').innerHTML = `Bạn đã hoàn thành trạm <strong class="text-bmw-blue">${zoneConfig[targetZoneId].name}</strong>`;
+                document.getElementById('success-message').innerHTML = `Bạn đã hoàn thành trạm <br><strong class="text-bmw-blue">${zoneConfig[targetZoneId].name}</strong>`;
                 document.getElementById('success-modal').classList.remove('hidden');
             } else {
                 alert(`QR Sai! Vui lòng tìm đúng trạm "${zoneConfig[targetZoneId].name}"`);
@@ -508,8 +508,8 @@
     <!-- === VIEW 1: LOGIN === -->
     <div id="login-view">
         <div class="login-card flex flex-col items-center animate-fade-in">
-            <h1 class="text-2xl font-bold text-gray-800 mb-1 font-heading uppercase text-center">Check-in</h1>
-            <p class="text-gray-500 text-sm mb-6 text-center">Nhập số điện thoại để tiếp tục</p>
+            <h1 class="text-2xl font-bold text-white mb-1 font-heading uppercase text-center">Check-in</h1>
+            <p class="text-gray-300 text-sm mb-6 text-center">Nhập số điện thoại đã đăng ký</p>
             
             <input type="tel" id="txt-sdt" class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:border-bmw-blue focus:ring-2 focus:ring-bmw-blue/20 transition-all text-center text-lg font-bold text-gray-800 mb-4" placeholder="Số điện thoại...">
             
@@ -517,7 +517,7 @@
                 BẮT ĐẦU <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
         </div>
-        <div class="absolute bottom-4 text-white/50 text-xs">© BMW Vietnam</div>
+        <div class="absolute bottom-4 text-white/50 text-xs">© BMW Vietnam 2025</div>
     </div>
 
     <!-- === VIEW 2: DASHBOARD === -->
@@ -532,7 +532,7 @@
                     </div>
                     <div>
                         <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider" id="display-title">Quý khách</p>
-                        <h2 class="text-sm font-bold text-gray-900 leading-tight" id="display-name">Loading...</h2>
+                        <h2 class="text-sm font-bold text-gray-900 leading-tight uppercase" id="display-name">Loading...</h2>
                         <span class="text-xs text-bmw-blue font-mono" id="display-phone">...</span>
                     </div>
                 </div>
